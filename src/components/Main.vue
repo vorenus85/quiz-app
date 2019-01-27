@@ -2,6 +2,19 @@
   <div>
     <div class="container">
       <div class="row">
+        <div class="progress-circle__container">
+          <span class="progress-circle__percent">{{ countDownTimer }}</span>
+          <svg class="progress-circle" viewBox="0 0 106 106" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+              <g id="ProgressBar" transform="translate(-17.000000, -17.000000)">
+                <circle id="Oval" stroke="#949494" stroke-width="5" fill-rule="nonzero" cx="70" cy="70" r="50"></circle>
+                <path class="progress-circle__path" d="M70,120 C97.6142375,120 120,97.6142375 120,70 C120,42.3857625 97.6142375,20 70,20 C42.3857625,20 20,42.3857625 20,70 C20,97.6142375 42.3857625,120 70,120 Z" id="Oval-Copy" stroke="#000000" stroke-width="5" :stroke-dasharray="circle" fill-rule="nonzero" transform="translate(70.000000, 70.000000) rotate(-125.000000) translate(-70.000000, -70.000000) "></path>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <button class="btn" @click="startTimer()">start</button>
+
         <div class="col-md-12 mt-5">
           <div id="choose-category" v-if="selectedCategoryId === 0">
             <h1> Choose category</h1>
@@ -18,13 +31,12 @@
                 <label for="questionPerCategory" style="width: 250px" class="text-left">Possible question per category:</label>
                 <input
                   id="questionPerCategory"
-                  :type="number"
-                  :min="10"
-                  :max="20"
+                  type="number"
+                  min="10"
+                  max="20"
                   class="form-control ml-3"
                   style="width: 70px"
                   v-model="questionPerCategory"
-                  :value="questionPerCategory"
                   readonly>
                 <button class="btn btn-info ml-2" @click="questionPerCategoryInc()">+</button>
                 <button class="btn btn-info ml-2" @click="questionPerCategoryDec()">-</button>
@@ -33,13 +45,12 @@
                 <label for="questionPerCategory" style="width: 250px" class="text-left">Round per category:</label>
                 <input
                   id="questionForPlay"
-                  :type="number"
-                  :min="5"
-                  :max="10"
+                  type="number"
+                  min="5"
+                  max="10"
                   class="form-control ml-3"
                   style="width: 70px"
                   v-model="questionForPlay"
-                  :value="questionForPlay"
                   readonly>
                 <button class="btn btn-info ml-2" @click="questionForPlayInc()">+</button>
                 <button class="btn btn-info ml-2" @click="questionForPlayDec()">-</button>
@@ -157,10 +168,38 @@ export default {
       correctAnswer: '',
       randomQuestionsArr: [],
       selectedCategoryId: 0,
-      selectedCategoryName: ''
+      selectedCategoryName: '',
+      countDownSteppes: 30,
+      countDownTimer: 30,
+      circlePercent: 0,
+      counterState: false,
+      timerInterval: null
+    }
+  },
+  computed: {
+    circle () {
+      return ((this.circlePercent / 100) * 100 * Math.PI) + ',9999'
     }
   },
   methods: {
+    startTimer: function () {
+      this.timerInterval = setInterval(this.countDown, 1000)
+    },
+    countDown: function () {
+      let n = this.countDownTimer
+      if (!this.counterState) {
+        this.counterState = true
+      } else if (n > 0) {
+        n = n - 1
+        this.countDownTimer = n
+        this.circlePercent = this.circlePercent + (100 / this.countDownSteppes)
+      } else {
+        clearInterval(this.timerInterval)
+        this.counterState = false
+        this.circlePercent = 0
+        this.countDownTimer = 30
+      }
+    },
     questionPerCategoryInc: function () {
       if (this.questionPerCategory <= this.questionPerCategoryMax - 1 && this.questionPerCategory >= this.questionPerCategoryMin - 1) {
         this.questionPerCategory++
@@ -288,6 +327,30 @@ export default {
       background: $red!important;
       color: $white;
     }
+  }
+
+  .progress-circle {
+    max-width:100px;
+    max-height:100px;
+    width:100%;
+    transform: scaleX(-1) rotate(-55deg);
+
+    &__percent {
+      position:absolute;
+      top:50%;
+      left:50%;
+      transform: translate(-50%,-50%);
+    }
+
+    &__container {
+      display:inline-block;
+      position:relative;
+    }
+
+    &__path {
+      transition: 0.5s ease-in-out all;
+    }
+
   }
 
   .settings-board {
