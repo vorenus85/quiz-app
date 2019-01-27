@@ -8,22 +8,30 @@
             <button
               v-for="category in categories"
               @click="getCategory(category.id,category.name),getRandomQuestions()"
-              :class="['btn ml-2 mr-2 btn-' + category.color]"
+              :class="['btn m-2 btn-' + category.color]"
               :key="category.id">
               {{ category.name }}
             </button>
           </div>
           <div id="questions" v-else>
-            <h2>Choosen category id: {{selectedCategoryId}}</h2>
-            <div>Choosen category name: {{selectedCategoryName}}</div>
-            <div>{{randomQuestion}}</div>
+            <h2>Choosen category: {{selectedCategoryName}}</h2>
+            <div class="question-progressbar d-flex mt-3 mb-3 justify-content-between align-items-center">
+              <span class="question-progressbar-item"
+              v-for="(question, i) in questionForPlay"
+              :key="question.id"
+              :class="userAnswers[i] !== undefined  ? (userAnswers[i] === 'null' ? 'user-tip-skip' : (userAnswers[i] === 'true' ? 'user-tip-true' : 'user-tip-false')) : ''"
+              ></span>
+              {{userAnswers[i]}}
+            </div>
             <div class="question-block">
               <h2 v-html="actQuestion"></h2>
+              <div>{{randomQuestionsArr}}</div>
               <div class="text-center">
                 <ul style="width: 300px; display:inline-block;" class="mt-5">
                   <li
+                    disabled
                     class="text-left mb-3 d-flex align-items-center"
-                    v-bind:class="userTip === answer.id ? (userTip === correctAnswer ? 'correct' : 'wrong') : ''"
+                    :class="userTip === answer.id ? (userTip === correctAnswer ? 'correct' : 'wrong') : ''"
                     v-for="(answer, i) in possAnswers"
                     :key="answer.id">
                     <span class="question-checkbox mr-3" @click="getUserTip(answer.id)"></span>{{i+1}}. {{answer.item}}
@@ -31,11 +39,18 @@
                 </ul>
               </div>
             </div>
-            <div>
+            <div v-if="randomQuestionsArr.length === questionForPlay">
               <button
                 @click="showQuestion()"
                 class="btn btn-info">
-                Show Question
+                Start Quiz!
+              </button>
+            </div>
+            <div v-else>
+              <button
+                @click="showQuestion()"
+                class="btn btn-info">
+                Next Question!
               </button>
             </div>
             <div>
@@ -100,8 +115,9 @@ export default {
       questionForPlay: 5,
       actQuestion: '',
       possAnswers: [],
+      userAnswers: [],
       correctAnswer: '',
-      randomQuestion: [],
+      randomQuestionsArr: [],
       selectedCategoryId: 0,
       selectedCategoryName: ''
     }
@@ -116,9 +132,24 @@ export default {
       this.selectedCategoryId = 0
       this.actQuestion = ''
       this.possAnswers = []
+      this.userAnswers = []
+    },
+    saveUserTip: function () {
+      if (this.userTip === undefined) {
+        this.userAnswers.push('null')
+      } else {
+        if (this.userTip === this.correctAnswer) {
+          this.userAnswers.push('true')
+        } else {
+          this.userAnswers.push('false')
+        }
+      }
     },
     showQuestion: function () {
-      let question = this.randomQuestion.pop()
+      let question = this.randomQuestionsArr.pop()
+      if (this.randomQuestionsArr.length + 1 < this.questionForPlay) {
+        this.saveUserTip()
+      }
       this.userTip = undefined
       this.getQuestionByCategory(this.selectedCategoryId, question)
     },
@@ -176,7 +207,7 @@ export default {
         let r = Math.floor(Math.random() * this.questionPerCategory)
         if (arr.indexOf(r) === -1) arr.push(r)
       }
-      this.randomQuestion = arr
+      this.randomQuestionsArr = arr
     }
   }
 }
@@ -186,12 +217,55 @@ export default {
 <style scoped lang="scss">
   @import '../scss/variables';
 
-  .question-checkbox {
-    width: 50px;
-    height: 50px;
-    background: $gray-light;
-    border-radius: 10px;
-    display: inline-block;
+  .user-tip {
+    &-skip {
+      background: $gray!important;
+      color: $white;
+    }
+    &-true {
+      background: $green!important;
+      color: $white;
+    }
+    &-false {
+      background: $red!important;
+      color: $white;
+    }
+  }
+
+  .question {
+    &-checkbox {
+      width: 50px;
+      height: 50px;
+      background: $gray-light;
+      border-radius: 10px;
+      display: inline-block;
+    }
+    &-progressbar {
+      position: relative;
+      width: 500px;
+      margin: 0 auto;
+
+      &-item {
+        width: 20px;
+        height: 20px;
+        border-radius: 100%;
+        background: $gray-lighter;
+        box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+        position: relative;
+        z-index: 2;
+        font-size: 12px;
+      }
+
+      &:before {
+        content: '';
+        background: $gray-light;
+        width: 100%;
+        height: 1px;
+        display: inline-block;
+        position: absolute;
+        z-index: 1;
+      }
+    }
   }
 
   .wrong .question-checkbox{
