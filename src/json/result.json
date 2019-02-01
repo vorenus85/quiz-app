@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "Title": "You cheat, aren't you?!",
+    "gifs": [
+      {
+        "id": 1,
+        "src": "https://media.giphy.com/media/3rgXBOmTlzyFCURutG/giphy.gif"
+      },
+      {
+        "id": 2,
+        "src": "https://media.giphy.com/media/BZlNhp9L5WINi/giphy.gif"
+      },
+      {
+        "id": 3,
+        "src": "https://media.giphy.com/media/3oKIPzLXQYb2Bn5PLG/source.gif"
+      }
+    ],
+    "rate": 100
+  },
+  {
+    "id": 2,
+    "Title": "Unbelievable!",
+    "gifs": [
+      {
+        "id": 1,
+        "src": "https://media.giphy.com/media/MhFpZj9gV08HC/giphy.gif"
+      },
+      {
+        "id": 2,
+        "src": "https://media.giphy.com/media/Fkmgse8OMKn9C/giphy.gif"
+      },
+      {
+        "id": 3,
+        "src": "https://media.giphy.com/media/xT77XWum9yH7zNkFW0/giphy.gif"
+      }
+    ],
+    "rate": 80
+  },
+  {
+    "id": 3,
+    "Title": "Not bad!",
+    "gifs": [
+      {
+        "id": 1,
+        "src": "https://media.giphy.com/media/RLWwOuPbqObupogOLB/source.mp4"
+      },
+      {
+        "id": 2,
+        "src": "https://media.giphy.com/media/LqhynjraNMUL6jwkEF/giphy.gif"
+      },
+      {
+        "id": 3,
+        "src": "https://media.giphy.com/media/oAkNXcL4QOag8/giphy.gif"
+      }
+    ],
+    "rate": 60
+  },
+  {
+    "id": 4,
+    "Title": "Hmmm intresting!",
+    "gif": "https://media.giphy.com/media/Lq3ueCSWjnQPu/source.gif",
+    "rate": 40
+  },
+  {
+    "id": 2,
+    "Title": "It's sad",
+    "gif": "https://media.giphy.com/media/33iqmp5ATXT5m/giphy.gif",
+    "rate": 20
+  },
+  {
+    "id": 2,
+    "Title": "Tt can't be worse...",
+    "gif": "https://media.giphy.com/media/LAFShX32UwUj6/giphy.gif",
+    "rate": 10
+  }
+]

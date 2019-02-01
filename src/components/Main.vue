@@ -2,19 +2,6 @@
   <div>
     <div class="container">
       <div class="row">
-        <div class="progress-circle__container">
-          <span class="progress-circle__percent">{{ countDownTimer }}</span>
-          <svg class="progress-circle" viewBox="0 0 106 106" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-              <g id="ProgressBar" transform="translate(-17.000000, -17.000000)">
-                <circle id="Oval" stroke="#949494" stroke-width="5" fill-rule="nonzero" cx="70" cy="70" r="50"></circle>
-                <path class="progress-circle__path" d="M70,120 C97.6142375,120 120,97.6142375 120,70 C120,42.3857625 97.6142375,20 70,20 C42.3857625,20 20,42.3857625 20,70 C20,97.6142375 42.3857625,120 70,120 Z" id="Oval-Copy" stroke="#000000" stroke-width="5" :stroke-dasharray="circle" fill-rule="nonzero" transform="translate(70.000000, 70.000000) rotate(-125.000000) translate(-70.000000, -70.000000) "></path>
-              </g>
-            </g>
-          </svg>
-        </div>
-        <button class="btn" @click="startTimer()">start</button>
-
         <div class="col-md-12 mt-5">
           <div id="choose-category" v-if="selectedCategoryId === 0">
             <h1> Choose category</h1>
@@ -62,26 +49,41 @@
             <h2>Choosen category: {{selectedCategoryName}}</h2>
             <div class="question-progressbar d-flex mt-3 mb-3 justify-content-between align-items-center">
               <span class="question-progressbar-item"
-              v-for="(question, i) in questionForPlay"
+              v-for="(question, index) in questionForPlay"
               :key="question.id"
-              :class="userAnswers[i] !== undefined  ? (userAnswers[i] === 'null' ? 'user-tip-skip' : (userAnswers[i] === 'true' ? 'user-tip-true' : 'user-tip-false')) : ''"
+              :class="userAnswers[index] !== undefined  ? (userAnswers[index] === 'null' ? 'user-tip-skip' : (userAnswers[index] === 'true' ? 'user-tip-true' : 'user-tip-false')) : ''"
               ></span>
-              {{userAnswers[i]}}
             </div>
-            <div class="question-block">
-              <h2 v-html="actQuestion"></h2>
-              <div>{{randomQuestionsArr}}</div>
-              <div class="text-center">
-                <ul style="width: 300px; display:inline-block;" class="mt-5">
-                  <li
-                    disabled
-                    class="text-left mb-3 d-flex align-items-center"
-                    :class="userTip === answer.id ? (userTip === correctAnswer ? 'correct' : 'wrong') : ''"
-                    v-for="(answer, i) in possAnswers"
-                    :key="answer.id">
-                    <span class="question-checkbox mr-3" @click="getUserTip(answer.id)"></span>{{i+1}}. {{answer.item}}
-                  </li>
-                </ul>
+            <div class="row">
+              <div class="col-md-12">
+                <h2 v-html="actQuestion"></h2>
+                <div>{{randomQuestionsArr}}</div>
+              </div>
+              <div class="question-block col-md-9">
+                <div class="text-center">
+                  <ul style="width: 300px; display:inline-block;" class="mt-5">
+                    <li
+                      class="text-left mb-3 d-flex align-items-center"
+                      :class="userTip === answer.id ? (userTip === correctAnswer ? 'correct' : 'wrong') : ''"
+                      v-for="(answer, i) in possAnswers"
+                      :key="answer.id">
+                      <span class="question-checkbox mr-3" @click="getUserTip(answer.id)"></span>{{i+1}}. {{answer.item}}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="progress-circle__container">
+                  <span class="progress-circle__percent">{{ countDownTimer }}</span>
+                  <svg class="progress-circle" viewBox="0 0 106 106" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                      <g id="ProgressBar" transform="translate(-17.000000, -17.000000)">
+                        <circle id="Oval" stroke="#949494" stroke-width="5" fill-rule="nonzero" cx="70" cy="70" r="50"></circle>
+                        <path class="progress-circle__path" d="M70,120 C97.6142375,120 120,97.6142375 120,70 C120,42.3857625 97.6142375,20 70,20 C42.3857625,20 20,42.3857625 20,70 C20,97.6142375 42.3857625,120 70,120 Z" id="Oval-Copy" stroke-width="5" :stroke-dasharray="circle" fill-rule="nonzero" transform="translate(70.000000, 70.000000) rotate(-125.000000) translate(-70.000000, -70.000000) "></path>
+                      </g>
+                    </g>
+                  </svg>
+                </div>
               </div>
             </div>
             <div v-if="randomQuestionsArr.length === questionForPlay">
@@ -169,8 +171,9 @@ export default {
       randomQuestionsArr: [],
       selectedCategoryId: 0,
       selectedCategoryName: '',
-      countDownSteppes: 30,
-      countDownTimer: 30,
+      userCanAddTip: true,
+      countDownSteppes: 5,
+      countDownTimer: 5,
       circlePercent: 0,
       counterState: false,
       timerInterval: null
@@ -183,7 +186,18 @@ export default {
   },
   methods: {
     startTimer: function () {
+      this.countDown()
       this.timerInterval = setInterval(this.countDown, 1000)
+    },
+    stopTimer: function () {
+      this.counterState = false
+      clearInterval(this.timerInterval)
+    },
+    resetTimer: function () {
+      clearInterval(this.timerInterval)
+      this.counterState = false
+      this.circlePercent = 0
+      this.countDownTimer = this.countDownSteppes
     },
     countDown: function () {
       let n = this.countDownTimer
@@ -194,10 +208,8 @@ export default {
         this.countDownTimer = n
         this.circlePercent = this.circlePercent + (100 / this.countDownSteppes)
       } else {
-        clearInterval(this.timerInterval)
-        this.counterState = false
-        this.circlePercent = 0
-        this.countDownTimer = 30
+        this.resetTimer()
+        this.userCanAddTip = false
       }
     },
     questionPerCategoryInc: function () {
@@ -230,20 +242,28 @@ export default {
       this.actQuestion = ''
       this.possAnswers = []
       this.userAnswers = []
+      this.resetTimer()
     },
     saveUserTip: function () {
-      if (this.userTip === undefined) {
+      if (this.userCanAddTip === false) {
         this.userAnswers.push('null')
       } else {
-        if (this.userTip === this.correctAnswer) {
-          this.userAnswers.push('true')
+        if (this.userTip === undefined) {
+          this.userAnswers.push('null')
         } else {
-          this.userAnswers.push('false')
+          if (this.userTip === this.correctAnswer) {
+            this.userAnswers.push('true')
+          } else {
+            this.userAnswers.push('false')
+          }
         }
       }
+      this.userCanAddTip = true
     },
     showQuestion: function () {
       let question = this.randomQuestionsArr.pop()
+      this.resetTimer()
+      this.startTimer()
       if (this.randomQuestionsArr.length + 1 < this.questionForPlay) {
         this.saveUserTip()
       }
@@ -252,12 +272,16 @@ export default {
     },
     getUserTip: function (answerId) {
       this.setUserTip(answerId)
+      this.stopTimer()
+      this.userCanAddTip = false
     },
     setUserTip: function (tip) {
-      if (this.userTip === undefined) {
-        this.userTip = tip
+      if (this.userCanAddTip === false) {
+        this.userTip = undefined
       } else {
-        this.userTip = this.userTip
+        if (this.userTip === undefined) {
+          this.userTip = tip
+        }
       }
     },
     getQuestionByCategory: function (categoryId, questionId) {
@@ -314,24 +338,26 @@ export default {
 <style scoped lang="scss">
   @import '../scss/variables';
 
-  .user-tip {
-    &-skip {
-      background: $gray!important;
-      color: $white;
-    }
-    &-true {
-      background: $green!important;
-      color: $white;
-    }
-    &-false {
-      background: $red!important;
-      color: $white;
+  .question-progressbar {
+    .user-tip {
+      &-skip {
+        background: $gray;
+        color: $white;
+      }
+      &-true {
+        background: $green;
+        color: $white;
+      }
+      &-false {
+        background: $red;
+        color: $white;
+      }
     }
   }
 
   .progress-circle {
-    max-width:100px;
-    max-height:100px;
+    max-width:255px;
+    max-height:255px;
     width:100%;
     transform: scaleX(-1) rotate(-55deg);
 
@@ -349,6 +375,7 @@ export default {
 
     &__path {
       transition: 0.5s ease-in-out all;
+      stroke: $green;
     }
 
   }
