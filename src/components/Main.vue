@@ -57,7 +57,7 @@
             <div class="row">
               <div class="col-md-12">
                 <h2 v-html="actQuestion"></h2>
-                <div>{{randomQuestionsArr}}</div>
+                <div>{{ randomQuestionsArr.length }}</div>
               </div>
               <div class="question-block col-md-9">
                 <div class="text-center">
@@ -172,6 +172,7 @@ export default {
       selectedCategoryId: 0,
       selectedCategoryName: '',
       userCanAddTip: true,
+      userAddedTip: false,
       countDownSteppes: 5,
       countDownTimer: 5,
       circlePercent: 0,
@@ -245,7 +246,7 @@ export default {
       this.resetTimer()
     },
     saveUserTip: function () {
-      if (this.userCanAddTip === false) {
+      if (this.userAddedTip === false) {
         this.userAnswers.push('null')
       } else {
         if (this.userTip === undefined) {
@@ -259,6 +260,7 @@ export default {
         }
       }
       this.userCanAddTip = true
+      this.userAddedTip = false
     },
     showQuestion: function () {
       let question = this.randomQuestionsArr.pop()
@@ -274,6 +276,7 @@ export default {
       this.setUserTip(answerId)
       this.stopTimer()
       this.userCanAddTip = false
+      this.userAddedTip = true
     },
     setUserTip: function (tip) {
       if (this.userCanAddTip === false) {
