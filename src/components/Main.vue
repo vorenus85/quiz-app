@@ -57,7 +57,6 @@
             <div class="row">
               <div class="col-md-12">
                 <h2 v-html="actQuestion"></h2>
-                <div>{{ randomQuestionsArr.length }}</div>
               </div>
               <div class="question-block col-md-9">
                 <div class="text-center">
@@ -73,7 +72,7 @@
                 </div>
               </div>
               <div class="col-md-3">
-                <div class="progress-circle__container">
+                <div class="progress-circle__container" v-if="userAnswers.length < questionForPlay">
                   <span class="progress-circle__percent">{{ countDownTimer }}</span>
                   <svg class="progress-circle" viewBox="0 0 106 106" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -86,27 +85,26 @@
                 </div>
               </div>
             </div>
-            <div v-if="randomQuestionsArr.length === questionForPlay">
-              <button
-                @click="showQuestion()"
-                class="btn btn-info">
-                Start Quiz!
-              </button>
-            </div>
-            <div v-else>
-              <button
-                @click="showQuestion()"
-                class="btn btn-info">
-                Next Question!
-              </button>
-            </div>
+            <button
+              @click="questionHandler()"
+              class="btn btn-info">
+              {{questionBtnText}}
+            </button>
             <div>
               <button
                 @click="resetCategory()"
-                class="btn btn-link">
+                class="btn btn-danger m-3">
                 Reset Quiz
               </button>
             </div>
+            <b-modal ref="myModalRef" hide-footer title="Your result">
+              <div class="d-block text-center">
+                <h3>{{resultTitle}}</h3>
+                <h4><strong>{{resultPercentage}}%</strong></h4>
+                <img class="img-fluid" :src="getIconPath(resultImgSrc)" alt="">
+              </div>
+              <b-btn class="mt-3" variant="outline-danger" @click="hideModal">Hide result</b-btn>
+            </b-modal>
           </div>
         </div>
       </div>
@@ -120,6 +118,7 @@ import gastronomyJson from '../json/gastronomy.json'
 import historyJson from '../json/history.json'
 import moviesJson from '../json/movies.json'
 import scienceJson from '../json/science.json'
+import resultJson from '../json/result.json'
 export default {
   name: 'Main',
   // state
@@ -130,6 +129,7 @@ export default {
       questionGastronomy: gastronomyJson,
       questionMovies: moviesJson,
       questionBooks: booksJson,
+      resultCategories: resultJson,
       userTip: undefined,
       categories: [
         {
@@ -177,13 +177,22 @@ export default {
       countDownTimer: 5,
       circlePercent: 0,
       counterState: false,
-      timerInterval: null
+      timerInterval: null,
+      resultTitle: '',
+      resultImgSrc: '',
+      resultPercentage: 0
     }
   },
   computed: {
     circle () {
       return ((this.circlePercent / 100) * 100 * Math.PI) + ',9999'
+    },
+    questionBtnText () {
+      return this.userAnswers.length === this.questionForPlay ? 'Show my result!' : (this.randomQuestionsArr.length === this.questionForPlay ? 'Start Quiz!' : 'Next Question!')
     }
+  },
+  watch: {
+
   },
   methods: {
     startTimer: function () {
@@ -262,15 +271,27 @@ export default {
       this.userCanAddTip = true
       this.userAddedTip = false
     },
-    showQuestion: function () {
-      let question = this.randomQuestionsArr.pop()
-      this.resetTimer()
-      this.startTimer()
-      if (this.randomQuestionsArr.length + 1 < this.questionForPlay) {
-        this.saveUserTip()
+    questionHandler: function () {
+      if (this.userAnswers.length !== this.questionForPlay) {
+        /* get question */
+        let questionId = this.randomQuestionsArr.pop()
+        this.resetTimer()
+        this.startTimer()
+        if (this.randomQuestionsArr.length + 1 < this.questionForPlay) {
+          this.saveUserTip()
+        }
+        this.userTip = undefined
+        if (questionId !== undefined) {
+          this.getQuestionByCategory(this.selectedCategoryId, questionId)
+        } else {
+          /* after last tip hide question and possAnswers */
+          this.actQuestion = ''
+          this.possAnswers = []
+        }
+      } else {
+        this.showModal()
+        this.calculateResult()
       }
-      this.userTip = undefined
-      this.getQuestionByCategory(this.selectedCategoryId, question)
     },
     getUserTip: function (answerId) {
       this.setUserTip(answerId)
@@ -325,6 +346,42 @@ export default {
       }
       this.correctAnswer = questionJson[questionId]['correct']
     },
+    getIconPath (iconName) {
+      return iconName ? require(`../assets/${iconName}`) : ''
+    },
+    calculateResult: function () {
+      let countOfTrue = this.userAnswers.filter(x => x === 'true')
+      this.resultPercentage = Math.round((countOfTrue.length / this.questionForPlay) * 100)
+      console.log(this.resultPercentage)
+      let resultCategoriesJson = this.resultCategories
+      switch (true) {
+      case (this.resultPercentage === 100):
+        this.resultTitle = resultCategoriesJson[0]['title']
+        this.resultImgSrc = resultCategoriesJson[0]['gifs'][Math.floor(Math.random() * resultCategoriesJson[0]['gifs'].length)]['src']
+        break
+      case (this.resultPercentage >= 80):
+        this.resultTitle = resultCategoriesJson[1]['title']
+        this.resultImgSrc = resultCategoriesJson[1]['gifs'][Math.floor(Math.random() * resultCategoriesJson[0]['gifs'].length)]['src']
+        break
+      case (this.resultPercentage >= 60):
+        this.resultTitle = resultCategoriesJson[2]['title']
+        this.resultImgSrc = resultCategoriesJson[2]['gifs'][Math.floor(Math.random() * resultCategoriesJson[0]['gifs'].length)]['src']
+        break
+      case (this.resultPercentage >= 40):
+        this.resultTitle = resultCategoriesJson[3]['title']
+        this.resultImgSrc = resultCategoriesJson[3]['gifs'][Math.floor(Math.random() * resultCategoriesJson[0]['gifs'].length)]['src']
+        break
+      case (this.resultPercentage >= 20):
+        this.resultTitle = resultCategoriesJson[4]['title']
+        this.resultImgSrc = resultCategoriesJson[4]['gifs'][Math.floor(Math.random() * resultCategoriesJson[0]['gifs'].length)]['src']
+        break
+      default:
+        this.resultTitle = resultCategoriesJson[5]['title']
+        this.resultImgSrc = resultCategoriesJson[5]['gifs'][Math.floor(Math.random() * resultCategoriesJson[0]['gifs'].length)]['src']
+        break
+      }
+      console.log(this.resultImgSrc)
+    },
     getRandomQuestions: function () {
       let arr = []
       while (arr.length < this.questionForPlay) {
@@ -332,6 +389,12 @@ export default {
         if (arr.indexOf(r) === -1) arr.push(r)
       }
       this.randomQuestionsArr = arr
+    },
+    showModal: function () {
+      this.$refs.myModalRef.show()
+    },
+    hideModal: function () {
+      this.$refs.myModalRef.hide()
     }
   }
 }
@@ -395,6 +458,7 @@ export default {
       background: $gray-light;
       border-radius: 10px;
       display: inline-block;
+      cursor: pointer;
     }
     &-progressbar {
       position: relative;
