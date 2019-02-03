@@ -352,7 +352,6 @@ export default {
     calculateResult: function () {
       let countOfTrue = this.userAnswers.filter(x => x === 'true')
       this.resultPercentage = Math.round((countOfTrue.length / this.questionForPlay) * 100)
-      console.log(this.resultPercentage)
       let resultCategoriesJson = this.resultCategories
       switch (true) {
       case (this.resultPercentage === 100):
@@ -380,7 +379,6 @@ export default {
         this.resultImgSrc = resultCategoriesJson[5]['gifs'][Math.floor(Math.random() * resultCategoriesJson[0]['gifs'].length)]['src']
         break
       }
-      console.log(this.resultImgSrc)
     },
     getRandomQuestions: function () {
       let arr = []
