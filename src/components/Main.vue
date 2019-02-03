@@ -347,7 +347,7 @@ export default {
       this.correctAnswer = questionJson[questionId]['correct']
     },
     getIconPath (iconName) {
-      return iconName ? require(`../assets/${iconName}`) : ''
+      return iconName ? require(`@/assets/${iconName}`) : ''
     },
     calculateResult: function () {
       let countOfTrue = this.userAnswers.filter(x => x === 'true')
