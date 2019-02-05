@@ -300,7 +300,7 @@ export default {
       this.stopTimer()
     },
     setUserTip: function (tip) {
-      if (this.userAddedTip === false ) {
+      if (this.userAddedTip === false) {
         if (this.userCanAddTip === false) {
           this.userTip = undefined
         } else {
