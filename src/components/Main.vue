@@ -51,7 +51,7 @@
               <span class="question-progressbar-item"
               v-for="(question, index) in questionForPlay"
               :key="question.id"
-              :class="userAnswers[index] !== undefined  ? (userAnswers[index] === 'null' ? 'user-tip-skip' : (userAnswers[index] === 'true' ? 'user-tip-true' : 'user-tip-false')) : ''"
+              :class="progressBarValidation(userAnswers[index])"
               ></span>
             </div>
             <div class="row">
@@ -63,7 +63,7 @@
                   <ul style="width: 300px; display:inline-block;" class="mt-5">
                     <li
                       class="text-left mb-3 d-flex align-items-center"
-                      :class="userTip === answer.id ? (userTip === correctAnswer ? 'correct' : 'wrong') : ''"
+                      :class="answerValidation(answer.id)"
                       v-for="(answer, i) in possAnswers"
                       :key="answer.id">
                       <span class="question-checkbox mr-3" @click="getUserTip(answer.id)"></span>{{i+1}}. {{answer.item}}
@@ -273,6 +273,12 @@ export default {
       this.userCanAddTip = true
       this.userAddedTip = false
     },
+    answerValidation (answerId) {
+      return this.userTip === answerId ? (this.userTip === this.correctAnswer ? 'correct' : 'wrong') : ''
+    },
+    progressBarValidation: function (userAnswer) {
+      return userAnswer !== undefined ? (userAnswer === 'null' ? 'user-tip-skip' : (userAnswer === 'true' ? 'user-tip-true' : 'user-tip-false')) : ''
+    },
     questionHandler: function () {
       if (this.userAnswers.length !== this.questionForPlay) {
         /* get question */
@@ -403,6 +409,31 @@ export default {
   @import '../scss/variables';
 
   .question-progressbar {
+    position: relative;
+    width: 500px;
+    margin: 0 auto;
+
+    &-item {
+      width: 20px;
+      height: 20px;
+      border-radius: 100%;
+      background: $gray-lighter;
+      box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
+      position: relative;
+      z-index: 2;
+      font-size: 12px;
+    }
+
+    &:before {
+      content: '';
+      background: $gray-light;
+      width: 100%;
+      height: 1px;
+      display: inline-block;
+      position: absolute;
+      z-index: 1;
+    }
+
     .user-tip {
       &-skip {
         background: $gray;
@@ -457,32 +488,6 @@ export default {
       border-radius: 10px;
       display: inline-block;
       cursor: pointer;
-    }
-    &-progressbar {
-      position: relative;
-      width: 500px;
-      margin: 0 auto;
-
-      &-item {
-        width: 20px;
-        height: 20px;
-        border-radius: 100%;
-        background: $gray-lighter;
-        box-shadow: 0 0 10px 0 rgba(0,0,0,.3);
-        position: relative;
-        z-index: 2;
-        font-size: 12px;
-      }
-
-      &:before {
-        content: '';
-        background: $gray-light;
-        width: 100%;
-        height: 1px;
-        display: inline-block;
-        position: absolute;
-        z-index: 1;
-      }
     }
   }
 
