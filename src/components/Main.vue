@@ -201,6 +201,8 @@ export default {
     },
     stopTimer: function () {
       this.counterState = false
+      this.userCanAddTip = false
+      this.userAddedTip = true
       clearInterval(this.timerInterval)
     },
     resetTimer: function () {
@@ -296,14 +298,12 @@ export default {
     getUserTip: function (answerId) {
       this.setUserTip(answerId)
       this.stopTimer()
-      this.userCanAddTip = false
-      this.userAddedTip = true
     },
     setUserTip: function (tip) {
-      if (this.userCanAddTip === false) {
-        this.userTip = undefined
-      } else {
-        if (this.userTip === undefined) {
+      if (this.userAddedTip === false ) {
+        if (this.userCanAddTip === false) {
+          this.userTip = undefined
+        } else {
           this.userTip = tip
         }
       }
